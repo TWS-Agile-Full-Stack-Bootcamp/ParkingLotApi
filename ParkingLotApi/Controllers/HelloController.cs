@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using ParkingLotApi.Repository;
 
 namespace ParkingLotApi.Controllers
 {
@@ -11,10 +12,31 @@ namespace ParkingLotApi.Controllers
     [Route("[controller]")]
     public class HelloController : ControllerBase
     {
-        [HttpGet]
-        public string Get()
+        private readonly ParkingLotContext parkingLotContext;
+
+        public HelloController(ParkingLotContext parkingLotContext)
         {
-            return "Hello World";
+            this.parkingLotContext = parkingLotContext;
+        }
+
+        [HttpGet]
+        public async Task<string> Get()
+        {
+            var boy = new ParkingBoy()
+            {
+                Name = "ParkingBoy"
+            };
+
+            var smartBoy = new SmartParkingBoy()
+            {
+                Name = "SmartParkingBoy"
+            };
+
+            await parkingLotContext.ParkingBoys.AddAsync(boy);
+            await parkingLotContext.SmartParkingBoys.AddRangeAsync(smartBoy);
+            await parkingLotContext.SaveChangesAsync();
+
+            return "Hello world";
         }
     }
 }

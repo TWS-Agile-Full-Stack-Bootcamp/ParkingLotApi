@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Policy;
+using Microsoft.EntityFrameworkCore;
 
 namespace ParkingLotApi.Repository
 {
@@ -8,5 +9,9 @@ namespace ParkingLotApi.Repository
             : base(options)
         {
         }
+
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<ParkingBoy> ParkingBoys { get; set; }
+        public DbSet<SmartParkingBoy> SmartParkingBoys { get; set; }
     }
 }
