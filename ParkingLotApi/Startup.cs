@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ParkingLotApi.Repository;
 
 namespace ParkingLotApi
 {
@@ -27,6 +29,10 @@ namespace ParkingLotApi
         {
             services.AddControllers();
             services.AddSwaggerGen();
+            services.AddDbContext<ParkingLotContext>(options =>
+            {
+                options.UseMySql(Configuration.GetConnectionString("Default"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,7 +42,20 @@ namespace ParkingLotApi
             {
                 app.UseDeveloperExceptionPage();
             }
-             
+
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                using (var context = scope.ServiceProvider.GetService<ParkingLotContext>())
+                {
+                    if (context.Database.ProviderName.ToLower().Contains("mysql"))
+                    {
+                        // context.Database.Migrate();
+                        context.Database.EnsureDeleted();
+                        context.Database.EnsureCreated();
+                    }
+                }
+            }
+
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
 
